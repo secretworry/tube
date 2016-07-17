@@ -17,10 +17,19 @@ defmodule Tube do
     end
   end
 
-  defmacro invoke(tube, context, opts \\ [], key) when is_atom(key) do
+  defmacro invoke(tube, context, opts \\ [], key_or_keys)
+
+  defmacro invoke(tube, context, opts, key) when is_atom(key) do
     quote bind_quoted: [tube: tube, context: context, opts: opts, key: key] do
       context = tube.call(Tube.Context.context(context), opts)
       Tube.Context.fetch!(context, key)
+    end
+  end
+
+  defmacro invoke(tube, context, opts, keys) when is_list(keys) do
+    quote bind_quoted: [tube: tube, context: context, opts: opts, keys: keys] do
+      context = tube.call(Tube.Context.context(context), opts)
+      Tube.Context.get_all(context, keys)
     end
   end
 end

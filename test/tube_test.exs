@@ -9,9 +9,10 @@ defmodule TubeTest do
 
     def call(context, opts) do
       stack = [{:sample, opts}|fetch!(context, :stack)]
-      assign(context, :stack, stack)
+      context
+      |> assign(:stack, stack)
+      |> assign(:opts, opts)
     end
-
   end
 
   test "export call/3" do
@@ -20,5 +21,6 @@ defmodule TubeTest do
 
   test "export invoke/3" do
     assert Tube.invoke(Sample, [stack: []], :opts, :stack) == [{:sample, :opts}]
+    assert Tube.invoke(Sample, [stack: []], :opts, [:stack, :opts]) == %{stack: [{:sample, :opts}], opts: :opts}
   end
 end

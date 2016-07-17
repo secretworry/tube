@@ -37,7 +37,7 @@ defmodule Tube.BuilderTest do
 
     tube :boom
 
-    def boom(context, opts) do
+    def boom(context, _opts) do
       context = assign(context, :entered_stack, true)
       throw {:oops, context}
     end
