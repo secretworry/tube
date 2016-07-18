@@ -25,16 +25,17 @@ defmodule Tube.Builder do
 
   defmacro __before_compile__(env) do
     tubes = Module.get_attribute(env.module, :tubes)
-    builder_opts = Module.get_attribute(env.module, :tube_builder_opts)
 
     if tubes == [] do
       raise "no tube has been defined in #{inspect env.module}"
     end
-    {context, body} = Tube.Builder.compile(env, tubes, builder_opts)
+    {context, body} = Tube.Builder.compile(env, tubes)
     quote do
       defp tube_builder_call(unquote(context), _), do: unquote(body)
     end
   end
+
+  defmacro tube(call, opts \\ [])
 
   defmacro tube(call, [do: block]) do
     call = put_elem(call, 2, elem(call, 2) ++ [Macro.var(:_opts, nil)])
@@ -45,17 +46,17 @@ defmodule Tube.Builder do
     end
   end
 
-  defmacro tube(tube, opts \\ []) do
+  defmacro tube(tube, opts) do
     quote do
       @tubes {unquote(tube), unquote(opts)}
     end
   end
 
 
-  @spec compile(Macro.Env.t, [{tube, Tube.opts}], Keyword.t) :: {Macro.t, Macro.t}
-  def compile(env, pipeline, builder_opts) do
+  @spec compile(Macro.Env.t, [{tube, Tube.opts}]) :: {Macro.t, Macro.t}
+  def compile(env, pipeline) do
     context = quote do: context
-    {context, Enum.reduce(pipeline, context, &quote_tube(init_tube(&1), &2, env, builder_opts))}
+    {context, Enum.reduce(pipeline, context, &quote_tube(init_tube(&1), &2, env))}
   end
 
   defp init_tube({tube, opts}) do
@@ -78,7 +79,7 @@ defmodule Tube.Builder do
     {:function, tube, opts}
   end
 
-  defp quote_tube({tube_type, tube, opts}, acc, env, builder_opts) do
+  defp quote_tube({tube_type, tube, opts}, acc, _env) do
     call = quote_tube_call(tube_type, tube, opts)
     error_message = case tube_type do
       :module -> "expected #{inspect tube}.call/2 to return a Tube.Context"
