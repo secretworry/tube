@@ -16,6 +16,24 @@ defmodule Tube.Context do
     %{context | values: Map.put(values, key, value)}
   end
 
+  @spec assign(t, atom, term, [if: (->boolean)]) :: t
+  def assign(context, key, value, [if: if_fun]) when is_atom(key) do
+    if if_fun.() do
+      assign(context, key, value)
+    else
+      context
+    end
+  end
+
+  @spec assign(t, atom, term, [unless: (->boolean)]) :: t
+  def assign(context, key, value, [unless: unless_fun]) when is_atom(key) do
+    unless unless_fun.() do
+      assign(context, key, value)
+    else
+      context
+    end
+  end
+
   @spec fetch(t, atom) :: {:ok, term} | :error
   def fetch(%__MODULE__{values: values} = context, key) when is_atom(key) do
     Map.fetch(values, key)
