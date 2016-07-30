@@ -49,6 +49,11 @@ defmodule Tube.Context do
     Map.get(values, key, default)
   end
 
+  @spec get(t, atom, (() -> any)) :: any
+  def get_lazy(%__MODULE__{values: values}, key, fun) do
+    Map.get_lazy(values, key, fun)
+  end
+
   @spec get_all(t, [atom]) :: Map.t
   def get_all(%__MODULE__{values: values}, keys) when is_list(keys) do
     Enum.reduce(keys, Map.new, fn key, acc ->
