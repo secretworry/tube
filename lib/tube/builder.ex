@@ -16,7 +16,7 @@ defmodule Tube.Builder do
       defoverridable [init: 1, call: 2]
 
       import Tube.Context
-      import Tube.Builder, only: [tube: 1, tube: 2]
+      import Tube.Builder, only: [tube: 1, tube: 2, requires: 1, optional: 1, exports: 1]
 
       Module.register_attribute(__MODULE__, :tubes, accumulate: true)
       @before_compile Tube.Builder
@@ -52,6 +52,20 @@ defmodule Tube.Builder do
     end
   end
 
+  defmacro requires(_fields) do
+    quote do
+    end
+  end
+
+  defmacro optional(_fields) do
+    quote do
+    end
+  end
+
+  defmacro exports(_fields) do
+    quote do
+    end
+  end
 
   @spec compile(Macro.Env.t, [{tube, Tube.opts}]) :: {Macro.t, Macro.t}
   def compile(env, pipeline) do
